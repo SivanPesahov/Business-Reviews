@@ -26,7 +26,7 @@ const reviewSchema = new Schema<IReview>({
   likes: [
     {
       type: Schema.Types.ObjectId,
-      ref: "Like",
+      ref: "User",
     },
   ],
   stars: {

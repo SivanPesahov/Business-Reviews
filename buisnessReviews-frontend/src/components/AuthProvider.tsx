@@ -44,7 +44,6 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       const response = await api.get("/Auth/me");
 
       setLoggedInUser(response.data);
-      console.log(loggedInUser);
     } catch (error: any) {
       if (error.response?.status === 401) {
         console.error("Invalid token, logging out");

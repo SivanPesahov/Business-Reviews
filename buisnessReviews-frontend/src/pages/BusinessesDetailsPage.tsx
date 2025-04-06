@@ -3,7 +3,7 @@ import { useParams } from "react-router-dom";
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/components/AuthProvider";
-import { toast, useToast } from "@/components/ui/use-toast";
+import { useToast } from "@/components/ui/use-toast";
 import io from "socket.io-client";
 
 const socket = io("http://localhost:3000");
@@ -65,7 +65,7 @@ function BusinessesDetailsPage() {
   const editMessage = useRef<HTMLTextAreaElement>(null);
   const { loggedInUser } = useAuth();
   const { toast } = useToast();
-  const eventListenersAdded = useRef(false); // Ref to track event listeners
+  const eventListenersAdded = useRef(false);
 
   const sortReviews = useCallback(
     (reviewsToSort: IReview[]) => {
@@ -179,11 +179,9 @@ function BusinessesDetailsPage() {
 
       setReviews((prevReviews) => sortReviews([response.data, ...prevReviews]));
 
-      // Clear the form
       setMessage("");
       setSelectedStars(0);
 
-      // Close accordion
       setIsAccordionOpen(false);
     } catch (error) {
       toast({
@@ -195,52 +193,49 @@ function BusinessesDetailsPage() {
     }
   };
 
-  const handleLike = useCallback(
-    async (review: IReview, loggedInUser: User) => {
-      const userId = (loggedInUser?._id ?? null) as string;
-      const hasLiked = review.likes.includes(userId);
+  const handleLike = async (review: IReview, loggedInUser: User) => {
+    const userId = (loggedInUser?._id ?? null) as string;
+    const hasLiked = review.likes.includes(userId);
 
-      try {
-        if (hasLiked) {
-          await api.patch(`/Reviews/unLike/${review._id}`);
-          setReviews((prevReviews) =>
-            prevReviews.map((r) =>
-              r._id === review._id
-                ? { ...r, likes: r.likes.filter((like) => like !== userId) }
-                : r
-            )
-          );
-          toast({
-            title: "You disliked this review",
-            description: "Review disliked",
-            variant: "success",
-          });
-        } else {
-          await api.patch(`/Reviews/like/${review._id}`);
-          setReviews((prevReviews) =>
-            prevReviews.map((r) =>
-              r._id === review._id ? { ...r, likes: [...r.likes, userId] } : r
-            )
-          );
-          toast({
-            title: "You liked this review",
-            description: "Review liked",
-            variant: "success",
-          });
-        }
-      } catch (error: any) {
+    try {
+      if (hasLiked) {
+        await api.patch(`/Reviews/unLike/${review._id}`);
+        setReviews((prevReviews) =>
+          prevReviews.map((r) =>
+            r._id === review._id
+              ? { ...r, likes: r.likes.filter((like) => like !== userId) }
+              : r
+          )
+        );
         toast({
-          title: "Failed to handle like!",
-          description: "like failed!",
-          variant: "destructive",
+          title: "You disliked this review",
+          description: "Review disliked",
+          variant: "success",
         });
-        console.error("Error handling like:", error.message);
+      } else {
+        await api.patch(`/Reviews/like/${review._id}`);
+        setReviews((prevReviews) =>
+          prevReviews.map((r) =>
+            r._id === review._id ? { ...r, likes: [...r.likes, userId] } : r
+          )
+        );
+        toast({
+          title: "You liked this review",
+          description: "Review liked",
+          variant: "success",
+        });
       }
-    },
-    []
-  );
+    } catch (error: any) {
+      toast({
+        title: "Failed to handle like!",
+        description: "like failed!",
+        variant: "destructive",
+      });
+      console.error("Error handling like:", error.message);
+    }
+  };
 
-  const handleDelete = useCallback(async (id: string) => {
+  const handleDelete = async (id: string) => {
     try {
       await api.delete(`/Reviews/${id}`);
       setReviews((prevReviews) =>
@@ -259,7 +254,7 @@ function BusinessesDetailsPage() {
       });
       console.log(error.message);
     }
-  }, []);
+  };
 
   const handleEditClick = (review: IReview) => {
     setEditingReview(review);
@@ -267,30 +262,27 @@ function BusinessesDetailsPage() {
     setIsEditDialogOpen(true);
   };
 
-  const handleEdit = useCallback(
-    async (id: string) => {
-      try {
-        const updatedReview = await api.patch(`/Reviews/${id}`, {
-          content: editMessage.current?.value,
-          stars: editSelectedStars,
-        });
-        toast({
-          title: "Review updated",
-          description: "updated Review succsesfully",
-          variant: "success",
-        });
-        setIsEditDialogOpen(false);
-      } catch (error) {
-        toast({
-          title: "Failed to update review!",
-          description: "update failed!",
-          variant: "destructive",
-        });
-        console.log("Error updating review:", error);
-      }
-    },
-    [editSelectedStars]
-  );
+  const handleEdit = async (id: string) => {
+    try {
+      const updatedReview = await api.patch(`/Reviews/${id}`, {
+        content: editMessage.current?.value,
+        stars: editSelectedStars,
+      });
+      toast({
+        title: "Review updated",
+        description: "updated Review succsesfully",
+        variant: "success",
+      });
+      setIsEditDialogOpen(false);
+    } catch (error) {
+      toast({
+        title: "Failed to update review!",
+        description: "update failed!",
+        variant: "destructive",
+      });
+      console.log("Error updating review:", error);
+    }
+  };
 
   if (loading) {
     return (

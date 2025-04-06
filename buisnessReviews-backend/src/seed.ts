@@ -195,7 +195,7 @@ async function seedDB() {
         await like.save();
         await Review.findByIdAndUpdate(
           review._id,
-          { $push: { likes: like._id } },
+          { $push: { likes: createdUsers[0]._id } },
           { new: true, useFindAndModify: false }
         );
         return like;

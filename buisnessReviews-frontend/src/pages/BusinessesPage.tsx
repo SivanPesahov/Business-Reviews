@@ -15,10 +15,8 @@ interface IBusiness {
   _id: string;
   name: string;
   description: string;
-
   stars: number[];
   imageUrl: string; // Add this property for the image URL
-
 }
 
 function BusinessesPage() {
@@ -30,6 +28,7 @@ function BusinessesPage() {
     async function getBusinesses() {
       try {
         const response = await api.get("/Business/businesses");
+        console.log(response);
         setBusinesses(response.data);
       } catch (error: any) {
         setError(error.response ? error.response.data.message : error.message);
@@ -44,7 +43,6 @@ function BusinessesPage() {
   if (error)
     return <div className="text-center py-10 text-red-500">Error: {error}</div>;
   return (
-
     <motion.div
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
@@ -110,7 +108,6 @@ function BusinessesPage() {
         ))}
       </div>
     </motion.div>
-
   );
 }
 

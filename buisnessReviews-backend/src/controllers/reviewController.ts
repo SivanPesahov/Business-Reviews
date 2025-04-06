@@ -13,7 +13,7 @@ interface RequestWithUserId extends Request {
 
 async function getReviewsByBuisnessId(req: Request, res: Response) {
   const { id } = req.params;
-  
+
   try {
     const reviews = await Review.find({ business: id });
     res.status(200).json(reviews);
@@ -144,11 +144,9 @@ async function editReview(req: RequestWithUserId, res: Response) {
     );
 
     if (err.name === "ValidationError") {
-      // Mongoose validation error
       console.log(`review.controller, updateReview. ${err.message}`);
       res.status(400).json({ message: err.message });
     } else {
-      // Other types of errors
       console.log(`review.controller, updateReview. ${err.message}`);
       res.status(500).json({ message: "Server error while updating review" });
     }
@@ -167,11 +165,6 @@ async function likeReview(
     return;
   }
 
-  const newLike: Partial<ILike> = {
-    review: new Types.ObjectId(id),
-    user: new Types.ObjectId(userId),
-  };
-
   const existingLike = await Like.findOne({ review: id, user: userId });
   if (existingLike) {
     res.status(400).json({ error: "User has already liked this review" });
@@ -185,20 +178,25 @@ async function likeReview(
       return;
     }
 
-    const like = new Like(newLike);
+    const like = new Like({ review: id, user: userId });
     await like.save();
 
-    review.likes.push(like.user);
-    await review.save();
-    io.emit("reviewLiked", review);
+    const updatedReview = await Review.findByIdAndUpdate(
+      id,
+      { $addToSet: { likes: userId } },
+      { new: true }
+    );
 
-    res.status(201).json(like);
+    io.emit("reviewLiked", updatedReview);
+
+    res.status(201).json({ message: "Review liked", review: updatedReview });
   } catch (error: any) {
     res
       .status(500)
       .json({ error: "An error occurred while liking the review" });
   }
 }
+
 async function unLikeReview(
   req: RequestWithUserId,
   res: Response
@@ -212,13 +210,6 @@ async function unLikeReview(
   }
 
   try {
-    const selectedReview = await Review.findById(id).populate("likes");
-
-    if (!selectedReview) {
-      res.status(404).json({ error: "Review not found" });
-      return;
-    }
-
     const likeToRemove = await Like.findOne({ review: id, user: userId });
 
     if (!likeToRemove) {
@@ -226,17 +217,24 @@ async function unLikeReview(
       return;
     }
 
-    selectedReview.likes = selectedReview.likes.filter(
-      (like) => like._id.toString() !== likeToRemove._id.toString()
+    const updatedReview = await Review.findByIdAndUpdate(
+      id,
+      { $pull: { likes: userId } },
+      { new: true }
     );
 
-    await selectedReview.save();
+    if (!updatedReview) {
+      res.status(404).json({ error: "Review not found" });
+      return;
+    }
+
     await Like.deleteOne({ _id: likeToRemove._id });
-    io.emit("reviewUnLiked", selectedReview);
+
+    io.emit("reviewUnLiked", updatedReview);
 
     res
       .status(200)
-      .json({ message: "Like removed successfully", review: selectedReview });
+      .json({ message: "Like removed successfully", review: updatedReview });
   } catch (error: any) {
     console.error("Error while removing like from review:", error);
     res
