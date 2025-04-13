@@ -185,6 +185,15 @@ async function seedDB() {
       })
     );
 
+    // Add stars to each business based on its reviews
+    for (const review of createdReviews) {
+      await Business.findByIdAndUpdate(
+        review.business,
+        { $push: { stars: review.stars } },
+        { new: true, useFindAndModify: false }
+      );
+    }
+
     // Create likes and assign them to users and reviews
     const createdLikes = await Promise.all(
       createdReviews.map(async (review) => {
