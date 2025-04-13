@@ -140,7 +140,7 @@ function BusinessesDetailsPage() {
       socket.off("reviewLiked");
       socket.off("reviewUnLiked");
     };
-  }, [businessesId, reviews]);
+  }, [businessesId]);
 
   const handleMouseEnter = (index: number) => {
     setHoveredStars(index + 1);
@@ -171,6 +171,8 @@ function BusinessesDetailsPage() {
         business: businessesId,
         stars: selectedStars,
       });
+      const updatedBusiness = await api.get(`/Business/${businessesId}`);
+      setBusiness(updatedBusiness.data);
       toast({
         title: "Review Added",
         description: "Review added successfully",
@@ -264,7 +266,7 @@ function BusinessesDetailsPage() {
 
   const handleEdit = async (id: string) => {
     try {
-      const updatedReview = await api.patch(`/Reviews/${id}`, {
+      await api.patch(`/Reviews/${id}`, {
         content: editMessage.current?.value,
         stars: editSelectedStars,
       });
@@ -308,7 +310,10 @@ function BusinessesDetailsPage() {
     );
   }
   const averageStars =
-    business.stars.reduce((acc, cur) => acc + cur, 0) / business.stars.length;
+    business.stars.length > 0
+      ? business.stars.reduce((acc, cur) => acc + cur, 0) /
+        business.stars.length
+      : 0;
 
   return (
     <motion.div
