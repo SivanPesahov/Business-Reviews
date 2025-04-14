@@ -31,8 +31,14 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Heart, Pencil, Star, Trash2 } from "lucide-react";
+import {
+  handleDelete,
+  handleEdit,
+  handleEditClick,
+  handleLike,
+} from "@/services/review.service";
 
-interface IReview {
+export interface IReview {
   stars: number;
   _id: string;
   content: string;
@@ -41,7 +47,7 @@ interface IReview {
   likes: string[];
 }
 
-interface IBusiness {
+export interface IBusiness {
   _id: string;
   name: string;
   description: string;
@@ -195,97 +201,6 @@ function BusinessesDetailsPage() {
     }
   };
 
-  const handleLike = async (review: IReview, loggedInUser: User) => {
-    const userId = (loggedInUser?._id ?? null) as string;
-    const hasLiked = review.likes.includes(userId);
-
-    try {
-      if (hasLiked) {
-        await api.patch(`/Reviews/unLike/${review._id}`);
-        setReviews((prevReviews) =>
-          prevReviews.map((r) =>
-            r._id === review._id
-              ? { ...r, likes: r.likes.filter((like) => like !== userId) }
-              : r
-          )
-        );
-        toast({
-          title: "You disliked this review",
-          description: "Review disliked",
-          variant: "success",
-        });
-      } else {
-        await api.patch(`/Reviews/like/${review._id}`);
-        setReviews((prevReviews) =>
-          prevReviews.map((r) =>
-            r._id === review._id ? { ...r, likes: [...r.likes, userId] } : r
-          )
-        );
-        toast({
-          title: "You liked this review",
-          description: "Review liked",
-          variant: "success",
-        });
-      }
-    } catch (error: any) {
-      toast({
-        title: "Failed to handle like!",
-        description: "like failed!",
-        variant: "destructive",
-      });
-      console.error("Error handling like:", error.message);
-    }
-  };
-
-  const handleDelete = async (id: string) => {
-    try {
-      await api.delete(`/Reviews/${id}`);
-      setReviews((prevReviews) =>
-        prevReviews.filter((review) => review._id !== id)
-      );
-      toast({
-        title: "Review Deleted",
-        description: "Review deleted successfully",
-        variant: "success",
-      });
-    } catch (error: any) {
-      toast({
-        title: "Failed to delete review!",
-        description: "delete failed!",
-        variant: "destructive",
-      });
-      console.log(error.message);
-    }
-  };
-
-  const handleEditClick = (review: IReview) => {
-    setEditingReview(review);
-    setEditSelectedStars(review.stars);
-    setIsEditDialogOpen(true);
-  };
-
-  const handleEdit = async (id: string) => {
-    try {
-      await api.patch(`/Reviews/${id}`, {
-        content: editMessage.current?.value,
-        stars: editSelectedStars,
-      });
-      toast({
-        title: "Review updated",
-        description: "updated Review succsesfully",
-        variant: "success",
-      });
-      setIsEditDialogOpen(false);
-    } catch (error) {
-      toast({
-        title: "Failed to update review!",
-        description: "update failed!",
-        variant: "destructive",
-      });
-      console.log("Error updating review:", error);
-    }
-  };
-
   if (loading) {
     return (
       <div className="flex justify-center items-center h-screen">
@@ -398,16 +313,34 @@ function BusinessesDetailsPage() {
                         ? "text-red-500 fill-current"
                         : "text-gray-400"
                     }
-                    onClick={() => handleLike(review, loggedInUser as User)}
+                    onClick={() =>
+                      handleLike(
+                        review,
+                        loggedInUser as User,
+                        setReviews,
+                        toast
+                      )
+                    }
                   />
                   {review.user === loggedInUser?._id && (
                     <>
                       <Button variant="ghost">
-                        <Trash2 onClick={() => handleDelete(review._id)} />
+                        <Trash2
+                          onClick={() =>
+                            handleDelete(review._id, setReviews, toast)
+                          }
+                        />
                       </Button>
                       <Button
                         variant="ghost"
-                        onClick={() => handleEditClick(review)}
+                        onClick={() =>
+                          handleEditClick(
+                            review,
+                            setEditingReview,
+                            setEditSelectedStars,
+                            setIsEditDialogOpen
+                          )
+                        }
                       >
                         <Pencil />
                       </Button>
@@ -506,7 +439,16 @@ function BusinessesDetailsPage() {
             </div>
           </Card>
           <Button
-            onClick={() => editingReview && handleEdit(editingReview._id)}
+            onClick={() =>
+              editingReview &&
+              handleEdit(
+                editingReview._id,
+                editMessage,
+                editSelectedStars,
+                setIsEditDialogOpen,
+                toast
+              )
+            }
           >
             Save changes
           </Button>
