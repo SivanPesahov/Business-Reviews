@@ -1,5 +1,5 @@
-import React, { ReactNode } from "react";
-import { useUserContext } from "./AuthProvider";
+import { ReactNode } from "react";
+import { useAuth } from "./AuthProvider";
 import { Navigate } from "react-router-dom";
 
 interface ProtectedRouteProps {
@@ -7,9 +7,9 @@ interface ProtectedRouteProps {
 }
 
 function ProtectedRoute({ children }: ProtectedRouteProps) {
-  const { user } = useUserContext();
+  const { loggedInUser } = useAuth();
 
-  if (user === null) {
+  if (loggedInUser === null) {
     return <Navigate to="/auth/login" />;
   }
 

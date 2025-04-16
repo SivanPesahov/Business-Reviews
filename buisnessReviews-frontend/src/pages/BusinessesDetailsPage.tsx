@@ -235,9 +235,13 @@ function BusinessesDetailsPage() {
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       transition={{ duration: 0.5 }}
-      className="container mx-auto px-4 py-8 bg-gray-100 dark:bg-gray-900 min-h-screen"
+      className="flex mx-auto px-4 py-8 bg-gray-100 dark:bg-gray-900 min-h-screen justify-between"
     >
-      <motion.div initial={{ y: -50 }} animate={{ y: 0 }} className="mb-8">
+      <motion.div
+        initial={{ y: -50 }}
+        animate={{ y: 0 }}
+        className="mb-8 w-auto"
+      >
         <img
           src={business.imageUrl || "https://via.placeholder.com/1200x300"}
           alt={business.name}
@@ -263,94 +267,15 @@ function BusinessesDetailsPage() {
         </div>
       </motion.div>
 
-      <motion.h2
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ delay: 0.3 }}
-        className="text-2xl font-semibold mb-4 text-blue-800 dark:text-blue-400"
-      >
-        Reviews
-      </motion.h2>
-
-      <div className="space-y-4">
-        {reviews.map((review, index) => (
-          <motion.div
-            key={review._id}
-            initial={{ opacity: 0, x: -50 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ delay: 0.1 * index }}
-          >
-            <Card className="overflow-hidden shadow-md hover:shadow-lg transition-all duration-300 bg-white dark:bg-gray-800 transform hover:scale-105">
-              <CardHeader className="pb-2">
-                <div className="flex justify-center">
-                  {Array.from({ length: 5 }, (_, index) => (
-                    <Star
-                      key={index}
-                      size={20}
-                      className={
-                        index < review.stars
-                          ? "text-yellow-400 fill-current"
-                          : "text-gray-300"
-                      }
-                    />
-                  ))}
-                </div>
-              </CardHeader>
-              <CardContent>
-                <p className="text-gray-700 dark:text-gray-300">
-                  {review.content}
-                </p>
-              </CardContent>
-              <CardFooter className="flex justify-end items-center pt-2">
-                <div className="flex items-center space-x-1 text-gray-500">
-                  <span>{review.likes.length}</span>
-                  <Heart
-                    size={16}
-                    className={
-                      review.likes.includes(
-                        (loggedInUser?._id ?? null) as string
-                      )
-                        ? "text-red-500 fill-current"
-                        : "text-gray-400"
-                    }
-                    onClick={() =>
-                      handleLike(
-                        review,
-                        loggedInUser as User,
-                        setReviews,
-                        toast
-                      )
-                    }
-                  />
-                  {review.user === loggedInUser?._id && (
-                    <>
-                      <Button variant="ghost">
-                        <Trash2
-                          onClick={() =>
-                            handleDelete(review._id, setReviews, toast)
-                          }
-                        />
-                      </Button>
-                      <Button
-                        variant="ghost"
-                        onClick={() =>
-                          handleEditClick(
-                            review,
-                            setEditingReview,
-                            setEditSelectedStars,
-                            setIsEditDialogOpen
-                          )
-                        }
-                      >
-                        <Pencil />
-                      </Button>
-                    </>
-                  )}
-                </div>
-              </CardFooter>
-            </Card>
-          </motion.div>
-        ))}
+      <motion.div>
+        <motion.h2
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 0.3 }}
+          className="text-2xl font-semibold mb-4 text-blue-800 dark:text-blue-400 "
+        >
+          Reviews
+        </motion.h2>
         <div className="flex justify-center ">
           {loggedInUser && (
             <Accordion
@@ -400,7 +325,87 @@ function BusinessesDetailsPage() {
             </Accordion>
           )}
         </div>
-      </div>
+        <div className="space-y-4 max-h-screen overflow-y-auto scrollbar-thin scrollbar-thumb-gray-400 dark:scrollbar-thumb-gray-600">
+          {reviews.map((review, index) => (
+            <motion.div
+              key={review._id}
+              initial={{ opacity: 0, x: -50 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ delay: 0.1 * index }}
+            >
+              <Card className="overflow-hidden shadow-md hover:shadow-lg transition-all duration-300 bg-white dark:bg-gray-800 transform hover:scale-105">
+                <CardHeader className="pb-2">
+                  <div className="flex justify-center">
+                    {Array.from({ length: 5 }, (_, index) => (
+                      <Star
+                        key={index}
+                        size={20}
+                        className={
+                          index < review.stars
+                            ? "text-yellow-400 fill-current"
+                            : "text-gray-300"
+                        }
+                      />
+                    ))}
+                  </div>
+                </CardHeader>
+                <CardContent>
+                  <p className="text-gray-700 dark:text-gray-300">
+                    {review.content}
+                  </p>
+                </CardContent>
+                <CardFooter className="flex justify-end items-center pt-2">
+                  <div className="flex items-center space-x-1 text-gray-500">
+                    <span>{review.likes.length}</span>
+                    <Heart
+                      size={16}
+                      className={
+                        review.likes.includes(
+                          (loggedInUser?._id ?? null) as string
+                        )
+                          ? "text-red-500 fill-current"
+                          : "text-gray-400"
+                      }
+                      onClick={() =>
+                        handleLike(
+                          review,
+                          loggedInUser as User,
+                          setReviews,
+                          toast
+                        )
+                      }
+                    />
+                    {review.user === loggedInUser?._id && (
+                      <>
+                        <Button variant="ghost">
+                          <Trash2
+                            onClick={() =>
+                              handleDelete(review._id, setReviews, toast)
+                            }
+                          />
+                        </Button>
+                        <Button
+                          variant="ghost"
+                          onClick={() =>
+                            handleEditClick(
+                              review,
+                              setEditingReview,
+                              setEditSelectedStars,
+                              setIsEditDialogOpen
+                            )
+                          }
+                        >
+                          <Pencil />
+                        </Button>
+                      </>
+                    )}
+                  </div>
+                </CardFooter>
+              </Card>
+            </motion.div>
+          ))}
+        </div>
+      </motion.div>
 
       <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
         <DialogContent>

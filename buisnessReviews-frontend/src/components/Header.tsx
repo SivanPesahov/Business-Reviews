@@ -56,6 +56,19 @@ function Header() {
                 </motion.div>
               </Link>
             </li>
+
+            {loggedInUser && (
+              <li>
+                <Link to="/createBusinesses">
+                  <motion.div
+                    whileHover={{ scale: 1.05 }}
+                    className="text-white hover:text-amber-300 transition-colors duration-200"
+                  >
+                    Create Business
+                  </motion.div>
+                </Link>
+              </li>
+            )}
           </ul>
         </nav>
       </div>

@@ -9,24 +9,8 @@ import AuthLayout from "./components/AuthLayout";
 import LoginPage from "./pages/LoginPage";
 import { AuthProvider } from "./components/AuthProvider";
 import { Toaster } from "@/components/ui/toaster";
-
-// interface ProtectedRouteProps {
-//   children: ReactNode;
-// }
-
-// function ProtectedRoute({ children }: ProtectedRouteProps) {
-//   const { loggedInUser } = useAuth();
-
-//   if (loggedInUser === undefined) {
-//     return null;
-//   }
-
-//   if (loggedInUser === null) {
-//     return <Navigate to="/auth/login" />;
-//   }
-
-//   return children;
-// }
+import CreateBusinessPage from "./pages/CreateBusinessPage";
+import ProtectedRoute from "./components/ProtectedRoute";
 
 function App() {
   return (
@@ -36,13 +20,14 @@ function App() {
           <Route path="/" element={<MainLayout />}>
             <Route index element={<HomePage />} />
             <Route path="businesses" element={<BusinessesPage />} />
+            <Route path="createBusinesses" element={<CreateBusinessPage />} />
 
             <Route
               path="businesses/:businessesId"
               element={
-                // <ProtectedRoute>
-                <BusinessesDetailsPage />
-                // </ProtectedRoute>
+                <ProtectedRoute>
+                  <BusinessesDetailsPage />
+                </ProtectedRoute>
               }
             />
           </Route>

@@ -1,4 +1,3 @@
-import React from "react";
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
@@ -7,7 +6,6 @@ import { Search, Star, Users, TrendingUp } from "lucide-react";
 function HomePage() {
   return (
     <div className="min-h-screen bg-gradient-to-b from-gray-100 to-blue-100 dark:from-gray-900 dark:to-blue-950">
-      {/* Hero Section */}
       <section className="py-20 relative overflow-hidden">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
@@ -50,7 +48,6 @@ function HomePage() {
         </div>
       </section>
 
-      {/* Features Section */}
       <section className="py-20 bg-white dark:bg-gray-800">
         <div className="container mx-auto px-4">
           <h2 className="text-4xl font-bold mb-12 text-center text-blue-600 dark:text-blue-400">
@@ -113,7 +110,6 @@ function HomePage() {
         </div>
       </section>
 
-      {/* Testimonials Section */}
       <section className="py-20 bg-blue-50 dark:bg-blue-950">
         <div className="container mx-auto px-4">
           <h2 className="text-4xl font-bold mb-12 text-center text-blue-600 dark:text-blue-400">
@@ -172,7 +168,6 @@ function HomePage() {
         </div>
       </section>
 
-      {/* Call to Action Section */}
       <section className="py-20 bg-gradient-to-r from-blue-800 to-blue-600 text-white">
         <motion.div
           initial={{ opacity: 0 }}
