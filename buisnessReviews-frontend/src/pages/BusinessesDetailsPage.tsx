@@ -1,42 +1,18 @@
 import React, { useEffect, useRef, useState, useCallback } from "react";
 import { useParams } from "react-router-dom";
 import { motion } from "framer-motion";
-import { Button } from "@/components/ui/button";
 import { useAuth } from "@/components/AuthProvider";
 import { useToast } from "@/components/ui/use-toast";
 import io from "socket.io-client";
 
 const socket = io("http://localhost:3000");
 
-import {
-  Accordion,
-  AccordionContent,
-  AccordionItem,
-  AccordionTrigger,
-} from "@/components/ui/accordion";
-import {
-  Card,
-  CardContent,
-  CardFooter,
-  CardHeader,
-} from "@/components/ui/card";
-import { Textarea } from "@/components/ui/textarea";
 import api from "@/services/api.service";
-import { User } from "../components/AuthProvider";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
-import { Heart, Pencil, Star, Trash2 } from "lucide-react";
-import {
-  handleDelete,
-  handleEdit,
-  handleEditClick,
-  handleLike,
-} from "@/services/review.service";
+
+import { StarsPresentetaionMeter } from "@/components/ui/starsMeter";
+import LeaveAReviewCard from "@/components/reviewCard";
+import ReviewToggle from "@/components/ReviewToggle";
+import EditDialog from "@/components/EditDialog";
 
 export interface IReview {
   stars: number;
@@ -255,16 +231,7 @@ function BusinessesDetailsPage() {
             {business.description}
           </p>
         </div>
-        <div className="flex items-center space-x-1 justify-center mt-3">
-          {Array.from({ length: 5 }, (_, index) => (
-            <Star
-              key={index}
-              size={20}
-              color="grey"
-              fill={index < averageStars ? "yellow" : "white"}
-            />
-          ))}
-        </div>
+        <StarsPresentetaionMeter averageStars={averageStars} />
       </motion.div>
 
       <motion.div>
@@ -278,136 +245,31 @@ function BusinessesDetailsPage() {
         </motion.h2>
         <div className="flex justify-center ">
           {loggedInUser && (
-            <Accordion
-              type="single"
-              collapsible
-              value={isAccordionOpen ? "item-1" : undefined}
-              onValueChange={(value) => setIsAccordionOpen(value === "item-1")}
-            >
-              <AccordionItem value="item-1">
-                <AccordionTrigger>Leave a Review</AccordionTrigger>
-                <AccordionContent>
-                  <div className="flex justify-center">
-                    <Card className="w-[350px] flex flex-col justify-center items-center">
-                      <CardHeader>
-                        <p className="text-xl">Leave a review</p>
-                        <div className="flex items-center justify-center">
-                          {Array.from({ length: 5 }, (_, index) => (
-                            <Star
-                              key={index}
-                              size={20}
-                              color="grey"
-                              fill={
-                                index < (hoveredStars || selectedStars)
-                                  ? "yellow"
-                                  : "white"
-                              }
-                              onMouseEnter={() => handleMouseEnter(index)}
-                              onMouseLeave={handleMouseLeave}
-                              onClick={() => handleClick(index)}
-                              style={{ cursor: "pointer" }}
-                            />
-                          ))}
-                        </div>
-                      </CardHeader>
-                      <div className="grid w-full gap-2">
-                        <Textarea
-                          placeholder="Type your message here."
-                          value={message}
-                          onChange={handleMessageChange}
-                        />
-                        <Button onClick={handleSubmit}>Send message</Button>
-                      </div>
-                    </Card>
-                  </div>
-                </AccordionContent>
-              </AccordionItem>
-            </Accordion>
+            <LeaveAReviewCard
+              handleClick={handleClick}
+              handleMessageChange={handleMessageChange}
+              handleMouseEnter={handleMouseEnter}
+              handleMouseLeave={handleMouseLeave}
+              handleSubmit={handleSubmit}
+              hoveredStars={hoveredStars}
+              isAccordionOpen={isAccordionOpen}
+              message={message}
+              selectedStars={selectedStars}
+              setIsAccordionOpen={setIsAccordionOpen}
+            />
           )}
         </div>
-        <div className="space-y-4 max-h-screen overflow-y-auto scrollbar-thin scrollbar-thumb-gray-400 dark:scrollbar-thumb-gray-600">
-          {reviews.map((review, index) => (
-            <motion.div
-              key={review._id}
-              initial={{ opacity: 0, x: -50 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ delay: 0.1 * index }}
-            >
-              <Card className="overflow-hidden shadow-md hover:shadow-lg transition-all duration-300 bg-white dark:bg-gray-800 transform hover:scale-105">
-                <CardHeader className="pb-2">
-                  <div className="flex justify-center">
-                    {Array.from({ length: 5 }, (_, index) => (
-                      <Star
-                        key={index}
-                        size={20}
-                        className={
-                          index < review.stars
-                            ? "text-yellow-400 fill-current"
-                            : "text-gray-300"
-                        }
-                      />
-                    ))}
-                  </div>
-                </CardHeader>
-                <CardContent>
-                  <p className="text-gray-700 dark:text-gray-300">
-                    {review.content}
-                  </p>
-                </CardContent>
-                <CardFooter className="flex justify-end items-center pt-2">
-                  <div className="flex items-center space-x-1 text-gray-500">
-                    <span>{review.likes.length}</span>
-                    <Heart
-                      size={16}
-                      className={
-                        review.likes.includes(
-                          (loggedInUser?._id ?? null) as string
-                        )
-                          ? "text-red-500 fill-current"
-                          : "text-gray-400"
-                      }
-                      onClick={() =>
-                        handleLike(
-                          review,
-                          loggedInUser as User,
-                          setReviews,
-                          toast
-                        )
-                      }
-                    />
-                    {review.user === loggedInUser?._id && (
-                      <>
-                        <Button variant="ghost">
-                          <Trash2
-                            onClick={() =>
-                              handleDelete(review._id, setReviews, toast)
-                            }
-                          />
-                        </Button>
-                        <Button
-                          variant="ghost"
-                          onClick={() =>
-                            handleEditClick(
-                              review,
-                              setEditingReview,
-                              setEditSelectedStars,
-                              setIsEditDialogOpen
-                            )
-                          }
-                        >
-                          <Pencil />
-                        </Button>
-                      </>
-                    )}
-                  </div>
-                </CardFooter>
-              </Card>
-            </motion.div>
-          ))}
-        </div>
+
+        <ReviewToggle
+          reviews={reviews}
+          setEditSelectedStars={setEditSelectedStars}
+          setEditingReview={setEditingReview}
+          setIsEditDialogOpen={setIsEditDialogOpen}
+          setReviews={setReviews}
+        />
       </motion.div>
 
-      <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
+      {/* <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
         <DialogContent>
           <DialogHeader>
             <DialogTitle>Edit your review here</DialogTitle>
@@ -458,7 +320,19 @@ function BusinessesDetailsPage() {
             Save changes
           </Button>
         </DialogContent>
-      </Dialog>
+      </Dialog> */}
+      <EditDialog
+        editMessage={editMessage}
+        editSelectedStars={editSelectedStars}
+        editingReview={editingReview}
+        handleClick={handleClick}
+        handleMouseEnter={handleMouseEnter}
+        handleMouseLeave={handleMouseLeave}
+        hoveredStars={hoveredStars}
+        isEditDialogOpen={isEditDialogOpen}
+        selectedStars={selectedStars}
+        setIsEditDialogOpen={setIsEditDialogOpen}
+      />
     </motion.div>
   );
 }

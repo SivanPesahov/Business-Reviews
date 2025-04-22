@@ -20,7 +20,14 @@ function App() {
           <Route path="/" element={<MainLayout />}>
             <Route index element={<HomePage />} />
             <Route path="businesses" element={<BusinessesPage />} />
-            <Route path="createBusinesses" element={<CreateBusinessPage />} />
+            <Route
+              path="createBusinesses"
+              element={
+                <ProtectedRoute>
+                  <CreateBusinessPage />
+                </ProtectedRoute>
+              }
+            />
 
             <Route
               path="businesses/:businessesId"
