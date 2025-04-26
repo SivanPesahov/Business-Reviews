@@ -10,9 +10,9 @@ const socket = io("http://localhost:3000");
 import api from "@/services/api.service";
 
 import { StarsPresentetaionMeter } from "@/components/ui/starsMeter";
-import LeaveAReviewCard from "@/components/reviewCard";
 import ReviewToggle from "@/components/ReviewToggle";
 import EditDialog from "@/components/EditDialog";
+import LeaveAReviewCard from "@/components/ReviewCard";
 
 export interface IReview {
   stars: number;
@@ -219,7 +219,7 @@ function BusinessesDetailsPage() {
         className="mb-8 w-auto"
       >
         <img
-          src={business.imageUrl || "https://via.placeholder.com/1200x300"}
+          src={business.imageUrl || "https://placehold.co/900x300"}
           alt={business.name}
           className="w-full h-[300px] object-cover rounded-lg shadow-lg mb-4"
         />
@@ -269,68 +269,16 @@ function BusinessesDetailsPage() {
         />
       </motion.div>
 
-      {/* <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>Edit your review here</DialogTitle>
-          </DialogHeader>
-          <DialogDescription></DialogDescription>
-
-          <Card>
-            <CardHeader>
-              <div className="flex items-center space-x-1">
-                {Array.from({ length: 5 }, (_, index) => (
-                  <Star
-                    key={index}
-                    size={20}
-                    color="grey"
-                    fill={
-                      index < (hoveredStars || editSelectedStars)
-                        ? "yellow"
-                        : "white"
-                    }
-                    onMouseEnter={() => handleMouseEnter(index)}
-                    onMouseLeave={handleMouseLeave}
-                    onClick={() => handleClickEditStars(index)}
-                    style={{ cursor: "pointer" }}
-                  />
-                ))}
-              </div>
-            </CardHeader>
-            <div className="grid w-full gap-2">
-              <Textarea
-                placeholder="Type here."
-                ref={editMessage}
-                defaultValue={editingReview?.content || ""}
-              />
-            </div>
-          </Card>
-          <Button
-            onClick={() =>
-              editingReview &&
-              handleEdit(
-                editingReview._id,
-                editMessage,
-                editSelectedStars,
-                setIsEditDialogOpen,
-                toast
-              )
-            }
-          >
-            Save changes
-          </Button>
-        </DialogContent>
-      </Dialog> */}
       <EditDialog
         editMessage={editMessage}
         editSelectedStars={editSelectedStars}
         editingReview={editingReview}
-        handleClick={handleClick}
+        handleClick={handleClickEditStars}
         handleMouseEnter={handleMouseEnter}
         handleMouseLeave={handleMouseLeave}
         hoveredStars={hoveredStars}
         isEditDialogOpen={isEditDialogOpen}
-        selectedStars={selectedStars}
+        selectedStars={editSelectedStars}
         setIsEditDialogOpen={setIsEditDialogOpen}
       />
     </motion.div>
