@@ -1,16 +1,37 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import { motion } from "framer-motion";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
+import { StarsMeter } from "@/components/ui/starsMeter";
+import {
+  handleMouseEnter,
+  handleMouseLeave,
+  handleClick,
+} from "@/services/starts.service";
+import { useForm } from "react-hook-form";
+import { z } from "zod";
+import { zodResolver } from "@hookform/resolvers/zod";
+
+const businessSchema = z.object({
+  name: z.string().min(1, "Business name is required"),
+  description: z.string().min(1, "Description is required"),
+});
+
+type BusinessFormData = z.infer<typeof businessSchema>;
 
 function CreateBusinessPage() {
-  const [name, setName] = useState("");
-  const [description, setDescription] = useState("");
-  const [stars, setStars] = useState(1);
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+  } = useForm<BusinessFormData>({
+    resolver: zodResolver(businessSchema),
+  });
+  const [selectedStars, setSelectedStars] = useState(1);
+  const [hoveredStars, setHoveredStars] = useState(1);
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    console.log({ name, description, stars });
+  const onSubmit = (data: BusinessFormData) => {
+    console.log({ ...data, selectedStars });
   };
 
   return (
@@ -29,7 +50,7 @@ function CreateBusinessPage() {
       </motion.h1>
 
       <form
-        onSubmit={handleSubmit}
+        onSubmit={handleSubmit(onSubmit)}
         className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-lg w-full max-w-lg space-y-4"
       >
         <div>
@@ -38,11 +59,12 @@ function CreateBusinessPage() {
           </label>
           <input
             type="text"
-            value={name}
-            required
-            onChange={(e) => setName(e.target.value)}
+            {...register("name")}
             className="w-full px-4 py-2 rounded border border-gray-300 dark:border-gray-700 dark:bg-gray-700 dark:text-white"
           />
+          {errors.name && (
+            <p className="text-red-500 text-sm">{errors.name.message}</p>
+          )}
         </div>
 
         <div>
@@ -50,29 +72,28 @@ function CreateBusinessPage() {
             Description
           </label>
           <Textarea
-            value={description}
-            required
-            onChange={(e) => setDescription(e.target.value)}
+            {...register("description")}
             className="w-full"
             placeholder="Write a short description..."
           />
+          {errors.description && (
+            <p className="text-red-500 text-sm">{errors.description.message}</p>
+          )}
         </div>
 
         <div>
           <label className="block text-gray-700 dark:text-gray-300 mb-2">
             Initial Star Rating
           </label>
-          <select
-            value={stars}
-            onChange={(e) => setStars(Number(e.target.value))}
-            className="w-full px-4 py-2 rounded border border-gray-300 dark:border-gray-700 dark:bg-gray-700 dark:text-white"
-          >
-            {[1, 2, 3, 4, 5].map((star) => (
-              <option key={star} value={star}>
-                {star}
-              </option>
-            ))}
-          </select>
+          <StarsMeter
+            handleClick={(index) => handleClick(index, setSelectedStars)}
+            handleMouseEnter={(index) =>
+              handleMouseEnter(index, setHoveredStars)
+            }
+            handleMouseLeave={() => handleMouseLeave(setHoveredStars)}
+            hoveredStars={hoveredStars}
+            selectedStars={selectedStars}
+          />
         </div>
 
         <Button type="submit" className="w-full">

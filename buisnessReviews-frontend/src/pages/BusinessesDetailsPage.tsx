@@ -14,6 +14,13 @@ import ReviewToggle from "@/components/ReviewToggle";
 import EditDialog from "@/components/EditDialog";
 import LeaveAReviewCard from "@/components/ReviewCard";
 
+import {
+  handleMouseEnter,
+  handleMouseLeave,
+  handleClick,
+  handleClickEditStars,
+} from "@/services/starts.service";
+
 export interface IReview {
   stars: number;
   _id: string;
@@ -124,22 +131,6 @@ function BusinessesDetailsPage() {
     };
   }, [businessesId]);
 
-  const handleMouseEnter = (index: number) => {
-    setHoveredStars(index + 1);
-  };
-
-  const handleMouseLeave = () => {
-    setHoveredStars(0);
-  };
-
-  const handleClick = (index: number) => {
-    setSelectedStars(index + 1);
-  };
-
-  const handleClickEditStars = (index: number) => {
-    setEditSelectedStars(index + 1);
-  };
-
   const handleMessageChange = (
     event: React.ChangeEvent<HTMLTextAreaElement>
   ) => {
@@ -246,10 +237,12 @@ function BusinessesDetailsPage() {
         <div className="flex justify-center ">
           {loggedInUser && (
             <LeaveAReviewCard
-              handleClick={handleClick}
+              handleClick={(index) => handleClick(index, setSelectedStars)}
               handleMessageChange={handleMessageChange}
-              handleMouseEnter={handleMouseEnter}
-              handleMouseLeave={handleMouseLeave}
+              handleMouseEnter={(index) =>
+                handleMouseEnter(index, setHoveredStars)
+              }
+              handleMouseLeave={() => handleMouseLeave(setHoveredStars)}
               handleSubmit={handleSubmit}
               hoveredStars={hoveredStars}
               isAccordionOpen={isAccordionOpen}
@@ -273,9 +266,11 @@ function BusinessesDetailsPage() {
         editMessage={editMessage}
         editSelectedStars={editSelectedStars}
         editingReview={editingReview}
-        handleClick={handleClickEditStars}
-        handleMouseEnter={handleMouseEnter}
-        handleMouseLeave={handleMouseLeave}
+        handleClick={(index) =>
+          handleClickEditStars(index, setEditSelectedStars)
+        }
+        handleMouseEnter={(index) => handleMouseEnter(index, setHoveredStars)}
+        handleMouseLeave={() => handleMouseLeave(setHoveredStars)}
         hoveredStars={hoveredStars}
         isEditDialogOpen={isEditDialogOpen}
         selectedStars={editSelectedStars}

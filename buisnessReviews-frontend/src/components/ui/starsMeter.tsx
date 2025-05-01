@@ -22,7 +22,11 @@ function StarsMeter({
           key={index}
           size={20}
           color="grey"
-          fill={index < (hoveredStars || selectedStars) ? "yellow" : "white"}
+          fill={
+            index < (hoveredStars > 0 ? hoveredStars : selectedStars)
+              ? "yellow"
+              : "white"
+          }
           onMouseEnter={() => handleMouseEnter(index)}
           onMouseLeave={handleMouseLeave}
           onClick={() => handleClick(index)}
