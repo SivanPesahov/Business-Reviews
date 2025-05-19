@@ -31,7 +31,8 @@ function CreateBusinessPage() {
   const [hoveredStars, setHoveredStars] = useState(1);
 
   const onSubmit = (data: BusinessFormData) => {
-    console.log({ ...data, selectedStars });
+    const stars = [selectedStars];
+    console.log({ ...data, stars });
   };
 
   return (

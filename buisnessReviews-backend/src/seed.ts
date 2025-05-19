@@ -169,8 +169,15 @@ async function seedDB() {
       })
     );
 
-    // Create businesses
-    const createdBusinesses = await Business.insertMany(businesses);
+    // Create businesses and assign a user to each business
+    const createdBusinesses = await Promise.all(
+      businesses.map((b, i) => {
+        return new Business({
+          ...b,
+          user: createdUsers[i % createdUsers.length]._id,
+        }).save();
+      })
+    );
 
     // Create reviews and assign them to users and businesses
     const createdReviews = await Promise.all(
