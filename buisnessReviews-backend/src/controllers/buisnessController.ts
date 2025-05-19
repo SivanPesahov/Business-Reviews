@@ -37,7 +37,7 @@ async function createBusiness(req: RequestWithUserId, res: Response) {
   const existingBusiness = await Business.findOne({ name: nameToCheck });
 
   if (existingBusiness) {
-    return res.status(409).json({ message: "Business already exists" });
+    return res.status(409).json({ message: "Business already exists in data" });
     return;
   }
 
